@@ -75,7 +75,7 @@ pub fn account_setup_widget() -> impl Widget<AppState> {
             .with_text_color(theme::PLACEHOLDER_COLOR)
             .with_line_break_mode(LineBreaking::WordWrap),
         )
-        .with_spacer(theme::grid(if compact { 1.0 } else { 6.0 }))
+        .with_spacer(theme::grid(if compact { 2.0 } else { 6.0 }))
         .with_child(account_tab_widget(AccountTab::FirstSetup).expand_width())
         .padding((
             theme::grid(4.0),
@@ -364,6 +364,7 @@ enum AccountTab {
 }
 
 fn account_tab_widget(tab: AccountTab) -> impl Widget<AppState> {
+    let compact = cfg!(target_os = "windows") && matches!(tab, AccountTab::FirstSetup);
     let mut col = Flex::column().cross_axis_alignment(match tab {
         AccountTab::FirstSetup => CrossAxisAlignment::Center,
         AccountTab::InPreferences => CrossAxisAlignment::Start,
@@ -378,7 +379,7 @@ fn account_tab_widget(tab: AccountTab) -> impl Widget<AppState> {
     // Web API Client ID input (shown when not logged in)
     col = col.with_child(ViewSwitcher::new(
         |data: &AppState, _| data.config.has_credentials(),
-        |is_logged_in, _, _| {
+        move |is_logged_in, _, _| {
             if *is_logged_in {
                 SizedBox::empty().boxed()
             } else {
@@ -411,7 +412,7 @@ fn account_tab_widget(tab: AccountTab) -> impl Widget<AppState> {
                                 },
                             )),
                     )
-                    .with_spacer(theme::grid(2.0))
+                    .with_spacer(theme::grid(if compact { 1.0 } else { 2.0 }))
                     .boxed()
             }
         },
